@@ -1,4 +1,4 @@
-package com.example.readingnotes.ui;
+package com.example.readingnotesapp.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,11 +8,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.readingnotes.R;
-import com.example.readingnotes.adapter.NoteAdapter;
-import com.example.readingnotes.data.AppDatabase;
-import com.example.readingnotes.data.Book;
-import com.example.readingnotes.data.Note;
+import com.example.readingnotesapp.R;
+import com.example.readingnotesapp.adapter.NoteAdapter;
+import com.example.readingnotesapp.data.AppDatabase;  // 修改
+import com.example.readingnotesapp.data.Book;  // 修改
+import com.example.readingnotesapp.data.Note;  // 修改
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;

@@ -1,4 +1,4 @@
-package com.example.readingnotes.adapter;
+package com.example.readingnotesapp.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,8 +6,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.readingnotes.R;
-import com.example.readingnotes.data.Note;
+import com.example.readingnotesapp.R;
+import com.example.readingnotesapp.data.Note;  // 修改这里
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;

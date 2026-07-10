@@ -1,13 +1,13 @@
-package com.example.readingnotes.ui;
+package com.example.readingnotesapp.ui;
 
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.readingnotes.R;
-import com.example.readingnotes.data.AppDatabase;
-import com.example.readingnotes.data.Note;
+import com.example.readingnotesapp.R;
+import com.example.readingnotesapp.data.AppDatabase;  // 修改
+import com.example.readingnotesapp.data.Note;  // 修改
 
 public class AddNoteActivity extends AppCompatActivity {
     private int bookId;

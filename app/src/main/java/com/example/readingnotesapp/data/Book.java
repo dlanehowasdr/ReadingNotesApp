@@ -1,4 +1,4 @@
-package com.example.readingnotes.data;
+package com.example.readingnotesapp.data;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

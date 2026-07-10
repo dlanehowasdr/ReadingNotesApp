@@ -1,4 +1,4 @@
-package com.example.readingnotes.ui;
+package com.example.readingnotesapp.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,10 +9,10 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.readingnotes.R;
-import com.example.readingnotes.adapter.BookAdapter;
-import com.example.readingnotes.data.AppDatabase;
-import com.example.readingnotes.data.Book;
+import com.example.readingnotesapp.R;
+import com.example.readingnotesapp.adapter.BookAdapter;
+import com.example.readingnotesapp.data.AppDatabase;
+import com.example.readingnotesapp.data.Book;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
@@ -26,14 +26,15 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        db = AppDatabase.getInstance(getContext());
+        db = AppDatabase.getInstance(requireContext());
 
         initViews(view);
         loadBooks();
         updateStatistics();
 
         view.findViewById(R.id.btn_add_book).setOnClickListener(v -> {
-            startActivity(new Intent(getContext(), AddBookActivity.class));
+            Intent intent = new Intent(getActivity(), AddBookActivity.class);
+            startActivity(intent);
         });
 
         return view;
@@ -51,7 +52,7 @@ public class HomeFragment extends Fragment {
     private void loadBooks() {
         List<Book> books = db.bookDao().getAllBooks();
         bookAdapter = new BookAdapter(books, book -> {
-            Intent intent = new Intent(getContext(), BookDetailActivity.class);
+            Intent intent = new Intent(getActivity(), BookDetailActivity.class);
             intent.putExtra("book_id", book.getId());
             startActivity(intent);
         });
@@ -71,6 +72,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // 刷新数据
         loadBooks();
         updateStatistics();
     }

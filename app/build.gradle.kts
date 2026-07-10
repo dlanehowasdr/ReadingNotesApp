@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.readingnotes"
+    namespace = "com.example.readingnotesapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.readingnotes"
+        applicationId = "com.example.readingnotesapp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

@@ -1,4 +1,4 @@
-package com.example.readingnotes.data;
+package com.example.readingnotesapp.data;
 
 import androidx.room.Dao;
 import androidx.room.Insert;

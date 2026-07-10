@@ -1,4 +1,4 @@
-package com.example.readingnotes.ui;
+package com.example.readingnotesapp.ui;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,9 +11,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
-import com.example.readingnotes.R;
-import com.example.readingnotes.data.AppDatabase;
-import com.example.readingnotes.data.Book;
+import com.example.readingnotesapp.R;
+import com.example.readingnotesapp.data.AppDatabase;  // 修改
+import com.example.readingnotesapp.data.Book;  // 修改
 
 public class EditBookActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 100;
