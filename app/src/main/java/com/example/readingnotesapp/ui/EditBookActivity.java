@@ -9,11 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.readingnotesapp.R;
-import com.example.readingnotesapp.data.AppDatabase;  // 修改
-import com.example.readingnotesapp.data.Book;  // 修改
+import com.example.readingnotesapp.data.AppDatabase;
+import com.example.readingnotesapp.data.Book;
 
 public class EditBookActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 100;
@@ -71,6 +72,7 @@ public class EditBookActivity extends AppCompatActivity {
             if (coverPath != null) {
                 book.setCoverPath(coverPath);
             }
+            // 不修改 createTime 和 readTime
 
             db.bookDao().updateBook(book);
             Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
@@ -78,9 +80,16 @@ public class EditBookActivity extends AppCompatActivity {
         });
 
         btnDelete.setOnClickListener(v -> {
-            db.bookDao().deleteBook(book);
-            Toast.makeText(this, "已删除", Toast.LENGTH_SHORT).show();
-            finish();
+            new AlertDialog.Builder(this)
+                    .setTitle("删除书籍")
+                    .setMessage("确定要删除《" + book.getName() + "》及其所有笔记吗？")
+                    .setPositiveButton("删除", (dialog, which) -> {
+                        db.bookDao().deleteBook(book);
+                        Toast.makeText(this, "已删除", Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .setNegativeButton("取消", null)
+                    .show();
         });
     }
 

@@ -12,8 +12,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.readingnotesapp.R;
-import com.example.readingnotesapp.data.AppDatabase;  // 修改
-import com.example.readingnotesapp.data.Book;  // 修改
+import com.example.readingnotesapp.data.AppDatabase;
+import com.example.readingnotesapp.data.Book;
 
 public class AddBookActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 100;
@@ -56,6 +56,8 @@ public class AddBookActivity extends AppCompatActivity {
             book.setPublisher(publisher);
             book.setCoverPath(coverPath);
             book.setStatus("在读");
+            book.setCreateTime(System.currentTimeMillis());  // 记录录入时间
+            book.setReadTime(0);  // 初始为0，表示未完成
 
             db.bookDao().insertBook(book);
             Toast.makeText(this, "添加成功", Toast.LENGTH_SHORT).show();

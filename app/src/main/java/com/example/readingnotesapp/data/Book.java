@@ -11,11 +11,13 @@ public class Book {
     private String publisher;
     private String coverPath;
     private String status; // "在读" or "已读"
-    private long createTime;
+    private long createTime;  // 录入时间（开始阅读时间）
+    private long readTime;    // 阅读完成时间（点击已读的时间）
 
     public Book() {
         this.createTime = System.currentTimeMillis();
         this.status = "在读";
+        this.readTime = 0;  // 0 表示未完成阅读
     }
 
     // Getters and Setters
@@ -36,4 +38,7 @@ public class Book {
 
     public long getCreateTime() { return createTime; }
     public void setCreateTime(long createTime) { this.createTime = createTime; }
+
+    public long getReadTime() { return readTime; }
+    public void setReadTime(long readTime) { this.readTime = readTime; }
 }

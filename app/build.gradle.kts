@@ -42,7 +42,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.recyclerview)
-
+    implementation("androidx.cardview:cardview:1.0.0")
     implementation(libs.androidx.room.runtime)
     kapt(libs.androidx.room.compiler)
 

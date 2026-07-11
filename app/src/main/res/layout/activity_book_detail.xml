@@ -1,50 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="12dp"
     android:background="@drawable/bg_textured">
 
-    <TextView
-        android:id="@+id/tv_book_name_detail"
+    <!-- 书籍信息卡片 -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="书名"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFCA28">
 
-    <TextView
-        android:id="@+id/tv_book_status_detail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="状态: 在读"
-        android:textSize="14sp"
-        android:layout_marginTop="4dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tv_publisher_detail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="出版社: 未知"
-        android:textSize="14sp"
-        android:layout_marginBottom="8dp" />
+            <!-- 封面图片 -->
+            <ImageView
+                android:id="@+id/iv_book_cover_detail"
+                android:layout_width="120dp"
+                android:layout_height="160dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_book_placeholder"
+                android:background="@android:drawable/dialog_holo_light_frame"
+                android:layout_marginEnd="16dp" />
 
+            <!-- 书籍信息 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:id="@+id/tv_book_name_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="书名"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#333333" />
+
+                <TextView
+                    android:id="@+id/tv_publisher_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="出版社：未知"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tv_book_status_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="状态：在读"
+                    android:textSize="14sp"
+                    android:textColor="#2196F3"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tv_start_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="开始阅读：2024-01-01 12:00"
+                    android:textSize="13sp"
+                    android:textColor="#888888"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tv_read_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="完成阅读：--"
+                    android:textSize="13sp"
+                    android:textColor="#888888"
+                    android:layout_marginTop="2dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- 操作按钮 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
 
         <Button
             android:id="@+id/btn_add_note"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="添加笔记"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:text="添 加"
             android:background="@drawable/custom_button"
-            android:stateListAnimator="@null" />
+            android:layout_marginEnd="4dp"
+            android:backgroundTint="#4CAF50" />
 
         <Button
             android:id="@+id/btn_mark_read"
@@ -52,38 +114,36 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="已读完"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
             android:background="@drawable/custom_button"
-            android:stateListAnimator="@null" />
+            android:layout_marginEnd="4dp"
+            android:backgroundTint="#2196F3" />
 
         <Button
             android:id="@+id/btn_export_notes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="导出笔记"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:text="导 出"
             android:background="@drawable/custom_button"
-            android:stateListAnimator="@null" />
+            android:layout_marginEnd="4dp"
+            android:backgroundTint="#FF9800" />
 
         <Button
             android:id="@+id/btn_edit_book"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="编辑"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:text="编 辑"
             android:background="@drawable/custom_button"
-            android:stateListAnimator="@null" />
+            android:backgroundTint="#9E9E9E" />
+
     </LinearLayout>
 
+    <!-- 笔记列表 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_notes"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="4dp" />
 
 </LinearLayout>
