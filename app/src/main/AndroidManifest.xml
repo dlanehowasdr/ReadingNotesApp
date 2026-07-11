@@ -17,6 +17,17 @@
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
         tools:targetApi="31">
 
+        <!-- FileProvider 用于分享文件 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -26,21 +37,11 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.AddBookActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ui.BookDetailActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ui.AddNoteActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ui.EditBookActivity"
-            android:exported="false" />
+        <activity android:name=".ui.AddBookActivity" />
+        <activity android:name=".ui.BookDetailActivity" />
+        <activity android:name=".ui.AddNoteActivity" />
+        <activity android:name=".ui.EditBookActivity" />
+        <activity android:name=".ui.EditNoteActivity" />
 
     </application>
 
