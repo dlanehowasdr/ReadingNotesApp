@@ -43,7 +43,10 @@
         android:layout_height="wrap_content"
         android:text="录入新书"
         android:textSize="16sp"
-        android:padding="12dp" />
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/custom_button"
+        android:stateListAnimator="@null" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_books"

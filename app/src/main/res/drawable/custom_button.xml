@@ -1,0 +1,16 @@
+<!-- res/drawable/custom_button.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 1. 圆角：数值越大越圆润 -->
+    <corners android:radius="16dp" />
+
+    <!-- 2. 渐变背景：从蓝色到紫色，比纯色更有质感 -->
+    <gradient
+        android:startColor="#4A90E2"
+        android:endColor="#8E44AD"
+        android:angle="45" />
+
+    <!-- 3. 阴影效果（模拟立体感） -->
+    <padding
+        android:bottom="4dp"
+        android:top="4dp" />
+</shape>

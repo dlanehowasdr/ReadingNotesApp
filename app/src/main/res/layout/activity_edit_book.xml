@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@drawable/bg_textured">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +23,11 @@
             android:id="@+id/btn_select_cover_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="更换封面" />
+            android:text="更换封面"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:background="@drawable/custom_button"
+            android:stateListAnimator="@null" />
 
         <EditText
             android:id="@+id/et_book_name_edit"
@@ -45,7 +50,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="保存修改"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:background="@drawable/custom_button"
+            android:stateListAnimator="@null" />
 
         <Button
             android:id="@+id/btn_delete_book"
@@ -53,7 +62,10 @@
             android:layout_height="wrap_content"
             android:text="删除书籍"
             android:textColor="@android:color/holo_red_dark"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:textSize="18sp"
+            android:background="@drawable/custom_button"
+            android:stateListAnimator="@null" />
 
     </LinearLayout>
 </ScrollView>

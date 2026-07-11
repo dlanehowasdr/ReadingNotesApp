@@ -21,6 +21,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="保存笔记"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:background="@drawable/custom_button"
+        android:stateListAnimator="@null" />
 
 </LinearLayout>
