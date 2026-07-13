@@ -25,13 +25,29 @@
         android:ellipsize="end"
         android:paddingTop="2dp" />
 
-    <TextView
-        android:id="@+id/book_status"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="在读"
-        android:textSize="10sp"
-        android:gravity="center"
-        android:textColor="@android:color/holo_blue_dark" />
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/book_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="在读"
+            android:textSize="10sp"
+            android:textColor="@android:color/holo_blue_dark" />
+
+        <TextView
+            android:id="@+id/book_note_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(0条)"
+            android:textSize="10sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginStart="2dp" />
+
+    </LinearLayout>
 
 </LinearLayout>

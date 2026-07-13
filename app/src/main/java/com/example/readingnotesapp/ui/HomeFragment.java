@@ -33,6 +33,7 @@ import com.example.readingnotesapp.utils.DataImportUtils;
 import com.example.readingnotesapp.utils.UserManager;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -41,7 +42,7 @@ import java.util.Map;
 public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private BookAdapter bookAdapter;
-    private TextView tvTotalBooks, tvReadBooks, tvCompletionRate, tvUserInfo;
+    private TextView tvTotalBooks, tvReadBooks, tvCompletionRate;
     private AppDatabase db;
     private UserManager userManager;
     private int currentUserId;
@@ -87,16 +88,18 @@ public class HomeFragment extends Fragment {
         tvTotalBooks = view.findViewById(R.id.tv_total_books);
         tvReadBooks = view.findViewById(R.id.tv_read_books);
         tvCompletionRate = view.findViewById(R.id.tv_completion_rate);
-        tvUserInfo = view.findViewById(R.id.tv_user_info);
 
-        User user = userManager.getCurrentUser();
-        if (user != null) {
-            tvUserInfo.setText("👤 " + user.getNickname());
-        }
     }
 
     private void loadBooks() {
         List<Book> books = db.bookDao().getBooksByUserId(currentUserId);
+
+        // 为每本书加载笔记条数
+        for (Book book : books) {
+            List<Note> notes = db.noteDao().getNotesByBookId(book.getId());
+            book.setNoteCount(notes != null ? notes.size() : 0);
+        }
+
         bookAdapter = new BookAdapter(books, book -> {
             Intent intent = new Intent(getContext(), BookDetailActivity.class);
             intent.putExtra("book_id", book.getId());
@@ -118,6 +121,16 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.menu_main, menu);
+
+        // 动态设置菜单标题：用户名 + ::
+        User user = userManager.getCurrentUser();
+        if (user != null) {
+            MenuItem menuUser = menu.findItem(R.id.menu_user);
+            if (menuUser != null) {
+                menuUser.setTitle("👤 " + user.getNickname() + " ::");
+            }
+        }
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -135,11 +148,9 @@ public class HomeFragment extends Fragment {
             showStatisticsDialog();
             return true;
         } else if (id == R.id.menu_data_backup) {
-            // ★★★ 数据备份 ★★★
             exportData();
             return true;
         } else if (id == R.id.menu_data_restore) {
-            // ★★★ 数据恢复 ★★★
             showRestoreDialog();
             return true;
         } else if (id == R.id.menu_logout) {
@@ -222,7 +233,6 @@ public class HomeFragment extends Fragment {
                         + "并替换为备份文件中的数据。\n\n"
                         + "请确认您已备份当前数据！")
                 .setPositiveButton("选择文件", (dialog, which) -> {
-                    // 打开文件选择器
                     filePickerLauncher.launch("application/json");
                 })
                 .setNegativeButton("取消", null)
@@ -231,7 +241,6 @@ public class HomeFragment extends Fragment {
 
     private void importDataFromFile(Uri uri) {
         try {
-            // 获取文件路径
             String filePath = getRealPathFromUri(uri);
             if (filePath == null) {
                 Toast.makeText(getContext(), "无法读取文件", Toast.LENGTH_SHORT).show();
@@ -240,7 +249,6 @@ public class HomeFragment extends Fragment {
 
             File file = new File(filePath);
 
-            // 解析数据
             DataImportUtils.ImportResult result = DataImportUtils.importData(getContext(), file, currentUserId);
 
             if (result.bookInfos.isEmpty()) {
@@ -248,15 +256,12 @@ public class HomeFragment extends Fragment {
                 return;
             }
 
-            // 统计笔记总数
             int totalNotes = 0;
             for (DataImportUtils.BookInfo info : result.bookInfos) {
                 totalNotes += info.notes.size();
             }
-
             final int finalTotalNotes = totalNotes;
 
-            // 确认恢复
             new AlertDialog.Builder(getContext())
                     .setTitle("确认恢复")
                     .setMessage("将恢复 " + result.bookInfos.size() + " 本书籍和 " +
@@ -280,23 +285,20 @@ public class HomeFragment extends Fragment {
             // 1. 清除当前用户的所有数据
             List<Book> oldBooks = db.bookDao().getBooksByUserId(currentUserId);
             for (Book book : oldBooks) {
-                // 删除笔记
                 db.noteDao().deleteNotesByBookId(book.getId());
-                // 删除书籍
                 db.bookDao().deleteBook(book);
             }
 
             // 2. 插入新数据
             for (DataImportUtils.BookInfo bookInfo : result.bookInfos) {
                 Book book = bookInfo.book;
-                // 插入书籍
                 db.bookDao().insertBook(book);
             }
 
-            // 3. 获取新插入的书籍列表（按插入顺序）
+            // 3. 获取新插入的书籍列表
             List<Book> newBooks = db.bookDao().getBooksByUserId(currentUserId);
 
-            // 4. 插入笔记，关联到对应的书籍
+            // 4. 插入笔记
             for (int i = 0; i < result.bookInfos.size() && i < newBooks.size(); i++) {
                 DataImportUtils.BookInfo bookInfo = result.bookInfos.get(i);
                 Book newBook = newBooks.get(i);
@@ -304,9 +306,7 @@ public class HomeFragment extends Fragment {
                 List<Note> notes = bookInfo.notes;
                 if (notes != null && !notes.isEmpty()) {
                     for (Note note : notes) {
-                        // 设置正确的 bookId
                         note.setBookId(newBook.getId());
-                        // 插入笔记
                         db.noteDao().insertNote(note);
                     }
                 }
@@ -324,10 +324,8 @@ public class HomeFragment extends Fragment {
     }
 
     private String getRealPathFromUri(Uri uri) {
-        // 对于 Android 10+，使用 ContentResolver 获取文件路径
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             try {
-                // 使用 DocumentFile 处理
                 android.database.Cursor cursor = getContext().getContentResolver()
                         .query(uri, null, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
@@ -335,7 +333,6 @@ public class HomeFragment extends Fragment {
                             cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME));
                     cursor.close();
 
-                    // 复制到应用内部存储
                     java.io.InputStream is = getContext().getContentResolver().openInputStream(uri);
                     File tempFile = new File(getContext().getFilesDir(), displayName);
                     java.io.FileOutputStream fos = new java.io.FileOutputStream(tempFile);
@@ -354,7 +351,6 @@ public class HomeFragment extends Fragment {
             return null;
         }
 
-        // Android 9 及以下
         String[] projection = {android.provider.MediaStore.MediaColumns.DATA};
         android.database.Cursor cursor = getContext().getContentResolver()
                 .query(uri, projection, null, null, null);
@@ -392,26 +388,95 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "切换到: " + selectedUser.getNickname(), Toast.LENGTH_SHORT).show();
                     loadBooks();
                     updateStatistics();
-                    User user = userManager.getCurrentUser();
-                    if (tvUserInfo != null && user != null) {
-                        tvUserInfo.setText("👤 " + user.getNickname());
-                    }
+
                 })
                 .setNegativeButton("取消", null)
                 .show();
     }
 
     private void showStatisticsDialog() {
+        User user = userManager.getCurrentUser();
         int total = db.bookDao().getBookCountByUserId(currentUserId);
         int read = db.bookDao().getReadCountByUserId(currentUserId);
         double rate = total > 0 ? (read * 100.0 / total) : 0;
 
-        User user = userManager.getCurrentUser();
-        String message = "用户: " + (user != null ? user.getNickname() : "") + "\n" +
-                "总书籍: " + total + "\n" +
-                "已读: " + read + "\n" +
-                "未读: " + (total - read) + "\n" +
-                "完成率: " + String.format("%.1f%%", rate);
+        // 统计笔记总数
+        int totalNotes = 0;
+        List<Book> books = db.bookDao().getBooksByUserId(currentUserId);
+        for (Book book : books) {
+            List<Note> notes = db.noteDao().getNotesByBookId(book.getId());
+            totalNotes += notes != null ? notes.size() : 0;
+        }
+
+        // 获取当前时间
+        long now = System.currentTimeMillis();
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+
+        // 本周已读
+        java.util.Calendar weekStart = java.util.Calendar.getInstance();
+        weekStart.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+        weekStart.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        weekStart.set(java.util.Calendar.MINUTE, 0);
+        weekStart.set(java.util.Calendar.SECOND, 0);
+        long weekStartTime = weekStart.getTimeInMillis();
+
+        int weekRead = 0;
+        for (Book b : books) {
+            if ("已读".equals(b.getStatus()) && b.getReadTime() >= weekStartTime) {
+                weekRead++;
+            }
+        }
+
+        // 本月已读
+        java.util.Calendar monthStart = java.util.Calendar.getInstance();
+        monthStart.set(java.util.Calendar.DAY_OF_MONTH, 1);
+        monthStart.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        monthStart.set(java.util.Calendar.MINUTE, 0);
+        monthStart.set(java.util.Calendar.SECOND, 0);
+        long monthStartTime = monthStart.getTimeInMillis();
+
+        int monthRead = 0;
+        for (Book b : books) {
+            if ("已读".equals(b.getStatus()) && b.getReadTime() >= monthStartTime) {
+                monthRead++;
+            }
+        }
+
+        // 本年已读
+        java.util.Calendar yearStart = java.util.Calendar.getInstance();
+        yearStart.set(java.util.Calendar.DAY_OF_YEAR, 1);
+        yearStart.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        yearStart.set(java.util.Calendar.MINUTE, 0);
+        yearStart.set(java.util.Calendar.SECOND, 0);
+        long yearStartTime = yearStart.getTimeInMillis();
+
+        int yearRead = 0;
+        for (Book b : books) {
+            if ("已读".equals(b.getStatus()) && b.getReadTime() >= yearStartTime) {
+                yearRead++;
+            }
+        }
+
+        // 计算周数、月数
+        java.util.Calendar nowCal = java.util.Calendar.getInstance();
+        int dayOfYear = nowCal.get(java.util.Calendar.DAY_OF_YEAR);
+        int weeksSinceYearStart = (int) Math.ceil(dayOfYear / 7.0);
+        int monthsSinceYearStart = nowCal.get(java.util.Calendar.MONTH) + 1;
+
+        double weekAvg = weeksSinceYearStart > 0 ? (double) yearRead / weeksSinceYearStart : 0;
+        double monthAvg = monthsSinceYearStart > 0 ? (double) yearRead / monthsSinceYearStart : 0;
+
+        String message = "📊 数据统计\n\n" +
+                "👤 用户: " + (user != null ? user.getNickname() : "") + "\n" +
+                "📚 总书籍: " + total + " 本\n" +
+                "✅ 已读: " + read + " 本\n" +
+                "📝 笔记总数: " + totalNotes + " 条\n" +
+                "📈 完成率: " + String.format("%.1f%%", rate) + "\n\n" +
+                "📅 本周已读: " + weekRead + " 本\n" +
+                "📊 周平均阅读: " + String.format("%.1f", weekAvg) + " 本\n\n" +
+                "📅 本月已读: " + monthRead + " 本\n" +
+                "📊 月平均阅读: " + String.format("%.1f", monthAvg) + " 本\n\n" +
+                "📅 本年已读: " + yearRead + " 本";
 
         new AlertDialog.Builder(getContext())
                 .setTitle("📊 数据统计")
@@ -459,5 +524,7 @@ public class HomeFragment extends Fragment {
         super.onResume();
         loadBooks();
         updateStatistics();
+        // 刷新菜单
+        getActivity().invalidateOptionsMenu();
     }
 }

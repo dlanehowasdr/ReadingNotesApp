@@ -38,9 +38,25 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
         Book book = bookList.get(position);
         holder.bookName.setText(book.getName());
-        holder.bookStatus.setText(book.getStatus());
 
-        // ★★★ 显示封面 ★★★
+        // 设置状态和笔记条数
+        String status = book.getStatus();
+        holder.bookStatus.setText(status);
+
+        // “已读”用粗体显示
+        if ("已读".equals(status)) {
+            holder.bookStatus.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+            holder.bookStatus.setTextColor(holder.itemView.getContext().getColor(android.R.color.holo_green_dark));
+        } else {
+            holder.bookStatus.setTypeface(android.graphics.Typeface.DEFAULT);
+            holder.bookStatus.setTextColor(holder.itemView.getContext().getColor(android.R.color.holo_blue_dark));
+        }
+
+        // 显示笔记条数
+        int noteCount = book.getNoteCount();
+        holder.bookNoteCount.setText("(" + noteCount + "条)");
+
+        // 显示封面
         if (book.getCoverPath() != null && !book.getCoverPath().isEmpty()) {
             File coverFile = new File(book.getCoverPath());
             if (coverFile.exists()) {
@@ -73,12 +89,14 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         ImageView bookCover;
         TextView bookName;
         TextView bookStatus;
+        TextView bookNoteCount;
 
         BookViewHolder(@NonNull View itemView) {
             super(itemView);
             bookCover = itemView.findViewById(R.id.book_cover);
             bookName = itemView.findViewById(R.id.book_name);
             bookStatus = itemView.findViewById(R.id.book_status);
+            bookNoteCount = itemView.findViewById(R.id.book_note_count);
         }
     }
 

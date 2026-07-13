@@ -3,23 +3,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="#F5F5F5">
 
+    <!-- 顶部标题行：纸间半页 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="4"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:gravity="center_vertical">
 
         <TextView
-            android:id="@+id/tv_user_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="👤 用户"
-            android:textSize="14sp"
+            android:text="📖书籍是人类进步的阶梯"
+            android:textSize="20sp"
+            android:textStyle="bold"
             android:textColor="#333333" />
+
+    </LinearLayout>
+
+    <!-- 统计信息行 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:layout_marginBottom="8dp">
 
         <TextView
             android:id="@+id/tv_total_books"
@@ -27,7 +41,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="总书籍: 0"
-            android:textSize="14sp" />
+            android:textSize="13sp"
+            android:gravity="center"
+            android:textColor="#555555" />
 
         <TextView
             android:id="@+id/tv_read_books"
@@ -35,7 +51,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="已读: 0"
-            android:textSize="14sp" />
+            android:textSize="13sp"
+            android:gravity="center"
+            android:textColor="#555555" />
 
         <TextView
             android:id="@+id/tv_completion_rate"
@@ -43,7 +61,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="完成率: 0%"
-            android:textSize="14sp" />
+            android:textSize="13sp"
+            android:gravity="center"
+            android:textColor="#555555" />
 
     </LinearLayout>
 
@@ -51,12 +71,12 @@
         android:id="@+id/btn_add_book"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="录入新书"
+        android:text="📕 录入新书"
         android:textSize="16sp"
         android:padding="12dp"
         android:textColor="#FFFFFF"
         android:background="@drawable/custom_button"
-        android:stateListAnimator="@null" />
+        android:layout_marginBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_books"

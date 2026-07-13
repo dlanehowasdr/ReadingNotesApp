@@ -2,25 +2,29 @@ package com.example.readingnotesapp.data;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.room.Index;
+import androidx.room.Ignore;
 
-@Entity(tableName = "books", indices = {@Index("userId")})
+@Entity(tableName = "books")
 public class Book {
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private int userId;           // 新增：关联用户
+    private int userId;
     private String name;
     private String publisher;
     private String coverPath;
-    private String status;        // "在读" or "已读"
+    private String status; // "在读" or "已读"
     private long createTime;
     private long readTime;
+
+    @Ignore
+    private int noteCount; // 笔记条数，不存储在数据库
 
     public Book() {
         this.createTime = System.currentTimeMillis();
         this.status = "在读";
         this.readTime = 0;
         this.userId = 0;
+        this.noteCount = 0;
     }
 
     // Getters and Setters
@@ -47,4 +51,7 @@ public class Book {
 
     public long getReadTime() { return readTime; }
     public void setReadTime(long readTime) { this.readTime = readTime; }
+
+    public int getNoteCount() { return noteCount; }
+    public void setNoteCount(int noteCount) { this.noteCount = noteCount; }
 }
