@@ -65,6 +65,7 @@ public class EditNoteActivity extends AppCompatActivity {
             note.setContent(content);
             db.noteDao().updateNote(note);
             Toast.makeText(this, "笔记已更新", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK);  // 添加这行
             finish();
         });
 
@@ -76,6 +77,7 @@ public class EditNoteActivity extends AppCompatActivity {
                     .setPositiveButton("删除", (dialog, which) -> {
                         db.noteDao().deleteNote(note);
                         Toast.makeText(this, "笔记已删除", Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_OK);  // 添加这行
                         finish();
                     })
                     .setNegativeButton("取消", null)

@@ -40,6 +40,7 @@ public class AddNoteActivity extends AppCompatActivity {
 
             AppDatabase.getInstance(this).noteDao().insertNote(note);
             Toast.makeText(this, "笔记添加成功", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK);  // 添加这行
             finish();
         });
     }

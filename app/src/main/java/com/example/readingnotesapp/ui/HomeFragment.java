@@ -94,11 +94,37 @@ public class HomeFragment extends Fragment {
     private void loadBooks() {
         List<Book> books = db.bookDao().getBooksByUserId(currentUserId);
 
-        // 为每本书加载笔记条数
+        // 为每本书加载笔记条数和最新笔记时间
         for (Book book : books) {
             List<Note> notes = db.noteDao().getNotesByBookId(book.getId());
             book.setNoteCount(notes != null ? notes.size() : 0);
+
+            // 获取最新笔记的时间
+            long latestNoteTime = 0;
+            if (notes != null && !notes.isEmpty()) {
+                // 笔记是按创建时间倒序排列的（从数据库查询时已排序）
+                // 第一条就是最新的
+                latestNoteTime = notes.get(0).getCreateTime();
+            }
+            book.setLatestNoteTime(latestNoteTime);
         }
+
+        // 按照最新笔记时间排序（最新的排在前面）
+        // 如果没有笔记，则排在最后
+        books.sort((b1, b2) -> {
+            long time1 = b1.getLatestNoteTime();
+            long time2 = b2.getLatestNoteTime();
+
+            // 如果都没有笔记，按创建时间排序
+            if (time1 == 0 && time2 == 0) {
+                return Long.compare(b2.getCreateTime(), b1.getCreateTime());
+            }
+            // 有笔记的排在前面
+            if (time1 == 0) return 1;
+            if (time2 == 0) return -1;
+            // 按最新笔记时间倒序
+            return Long.compare(time2, time1);
+        });
 
         bookAdapter = new BookAdapter(books, book -> {
             Intent intent = new Intent(getContext(), BookDetailActivity.class);

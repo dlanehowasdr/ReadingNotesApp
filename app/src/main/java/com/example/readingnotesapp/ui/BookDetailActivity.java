@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,6 +37,9 @@ public class BookDetailActivity extends AppCompatActivity {
     private TextView tvBookName, tvBookStatus, tvPublisher, tvStartTime, tvReadTime;
     private ImageView ivBookCover;
 
+    private static final int REQUEST_ADD_NOTE = 1;
+    private static final int REQUEST_EDIT_NOTE = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +53,6 @@ public class BookDetailActivity extends AppCompatActivity {
             return;
         }
 
-        // ★★★ 修改这里 ★★★
         book = db.bookDao().getBookById(bookId, UserManager.getInstance(this).getCurrentUserId());
         if (book == null) {
             Toast.makeText(this, "书籍不存在或无权访问", Toast.LENGTH_SHORT).show();
@@ -89,7 +92,6 @@ public class BookDetailActivity extends AppCompatActivity {
             tvBookStatus.setTextColor(getColor(android.R.color.holo_blue_dark));
         }
 
-        // ★★★ 显示封面 ★★★
         if (book.getCoverPath() != null && !book.getCoverPath().isEmpty()) {
             File coverFile = new File(book.getCoverPath());
             if (coverFile.exists()) {
@@ -106,7 +108,6 @@ public class BookDetailActivity extends AppCompatActivity {
             ivBookCover.setImageResource(R.drawable.ic_book_placeholder);
         }
 
-        // 显示时间信息
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
         String startTime = sdf.format(book.getCreateTime());
         tvStartTime.setText("开始阅读：" + startTime);
@@ -122,19 +123,21 @@ public class BookDetailActivity extends AppCompatActivity {
     private void loadNotes() {
         List<Note> notes = db.noteDao().getNotesByBookId(bookId);
         noteAdapter = new NoteAdapter(notes, note -> {
+            // ★★★ 改为 startActivityForResult ★★★
             Intent intent = new Intent(this, EditNoteActivity.class);
             intent.putExtra("note_id", note.getId());
             intent.putExtra("book_id", bookId);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_EDIT_NOTE);
         });
         recyclerView.setAdapter(noteAdapter);
     }
 
     private void setupButtons() {
+        // ★★★ 添加笔记改为 startActivityForResult ★★★
         findViewById(R.id.btn_add_note).setOnClickListener(v -> {
             Intent intent = new Intent(this, AddNoteActivity.class);
             intent.putExtra("book_id", bookId);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_ADD_NOTE);
         });
 
         findViewById(R.id.btn_mark_read).setOnClickListener(v -> {
@@ -159,6 +162,31 @@ public class BookDetailActivity extends AppCompatActivity {
             intent.putExtra("book_id", bookId);
             startActivity(intent);
         });
+    }
+
+    // ★★★ 添加 onActivityResult 处理返回结果 ★★★
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // 如果返回结果是 OK，刷新数据
+        if (resultCode == RESULT_OK) {
+            refreshData();
+        }
+    }
+
+    private void refreshData() {
+        book = db.bookDao().getBookById(bookId, UserManager.getInstance(this).getCurrentUserId());
+        if (book != null) {
+            displayBookInfo();
+            loadNotes();
+        }
+    }
+
+    // ★★★ 修改 onResume 为调用 refreshData ★★★
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshData();
     }
 
     private void exportAndShareNotes() {
@@ -243,20 +271,6 @@ public class BookDetailActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "分享失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // ★★★ 修改这里 ★★★
-        book = db.bookDao().getBookById(bookId, UserManager.getInstance(this).getCurrentUserId());
-        if (book != null) {
-            displayBookInfo();
-            loadNotes();
-        } else {
-            Toast.makeText(this, "书籍不存在或已被删除", Toast.LENGTH_SHORT).show();
-            finish();
         }
     }
 }

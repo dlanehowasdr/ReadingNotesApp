@@ -19,12 +19,16 @@ public class Book {
     @Ignore
     private int noteCount; // 笔记条数，不存储在数据库
 
+    @Ignore
+    private long latestNoteTime; // 最新笔记时间，不存储在数据库
+
     public Book() {
         this.createTime = System.currentTimeMillis();
         this.status = "在读";
         this.readTime = 0;
         this.userId = 0;
         this.noteCount = 0;
+        this.latestNoteTime = 0;
     }
 
     // Getters and Setters
@@ -54,4 +58,7 @@ public class Book {
 
     public int getNoteCount() { return noteCount; }
     public void setNoteCount(int noteCount) { this.noteCount = noteCount; }
+
+    public long getLatestNoteTime() { return latestNoteTime; }
+    public void setLatestNoteTime(long latestNoteTime) { this.latestNoteTime = latestNoteTime; }
 }
