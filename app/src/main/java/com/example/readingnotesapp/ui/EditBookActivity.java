@@ -1,7 +1,9 @@
 package com.example.readingnotesapp.ui;
 
+import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,6 +17,13 @@ import com.bumptech.glide.Glide;
 import com.example.readingnotesapp.R;
 import com.example.readingnotesapp.data.AppDatabase;
 import com.example.readingnotesapp.data.Book;
+import com.example.readingnotesapp.utils.UserManager;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class EditBookActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 100;
@@ -24,6 +33,7 @@ public class EditBookActivity extends AppCompatActivity {
     private ImageView ivCover;
     private String coverPath;
     private AppDatabase db;
+    private Uri selectedImageUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +48,9 @@ public class EditBookActivity extends AppCompatActivity {
             return;
         }
 
-        book = db.bookDao().getBookById(bookId);
+        book = db.bookDao().getBookById(bookId, UserManager.getInstance(this).getCurrentUserId());
         if (book == null) {
+            Toast.makeText(this, "书籍不存在或无权访问", Toast.LENGTH_SHORT).show();  // ★★★ 修改这里 ★★★
             finish();
             return;
         }
@@ -72,7 +83,6 @@ public class EditBookActivity extends AppCompatActivity {
             if (coverPath != null) {
                 book.setCoverPath(coverPath);
             }
-            // 不修改 createTime 和 readTime
 
             db.bookDao().updateBook(book);
             Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
@@ -84,6 +94,13 @@ public class EditBookActivity extends AppCompatActivity {
                     .setTitle("删除书籍")
                     .setMessage("确定要删除《" + book.getName() + "》及其所有笔记吗？")
                     .setPositiveButton("删除", (dialog, which) -> {
+                        // 删除封面图片文件
+                        if (book.getCoverPath() != null) {
+                            File coverFile = new File(book.getCoverPath());
+                            if (coverFile.exists()) {
+                                coverFile.delete();
+                            }
+                        }
                         db.bookDao().deleteBook(book);
                         Toast.makeText(this, "已删除", Toast.LENGTH_SHORT).show();
                         finish();
@@ -102,8 +119,22 @@ public class EditBookActivity extends AppCompatActivity {
     private void loadBookInfo() {
         etBookName.setText(book.getName());
         etPublisher.setText(book.getPublisher());
+
+        // 显示封面
         if (book.getCoverPath() != null && !book.getCoverPath().isEmpty()) {
-            Glide.with(this).load(book.getCoverPath()).centerCrop().into(ivCover);
+            File coverFile = new File(book.getCoverPath());
+            if (coverFile.exists()) {
+                Glide.with(this)
+                        .load(coverFile)
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_book_placeholder)
+                        .error(R.drawable.ic_book_placeholder)
+                        .into(ivCover);
+            } else {
+                ivCover.setImageResource(R.drawable.ic_book_placeholder);
+            }
+        } else {
+            ivCover.setImageResource(R.drawable.ic_book_placeholder);
         }
     }
 
@@ -111,20 +142,55 @@ public class EditBookActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
-            coverPath = getRealPathFromURI(imageUri);
-            Glide.with(this).load(imageUri).centerCrop().into(ivCover);
+            selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                // 显示选中的图片
+                Glide.with(this)
+                        .load(selectedImageUri)
+                        .centerCrop()
+                        .into(ivCover);
+
+                // 保存图片到应用内部存储
+                coverPath = saveImageToInternalStorage(selectedImageUri);
+            }
         }
     }
 
-    private String getRealPathFromURI(Uri contentUri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(contentUri, projection, null, null, null);
-        if (cursor == null) return null;
-        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String path = cursor.getString(columnIndex);
-        cursor.close();
-        return path;
+    /**
+     * 保存图片到应用内部存储
+     */
+    private String saveImageToInternalStorage(Uri imageUri) {
+        try {
+            // 创建封面存储目录
+            File coverDir = new File(getFilesDir(), "covers");
+            if (!coverDir.exists()) {
+                coverDir.mkdirs();
+            }
+
+            // 生成唯一文件名
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            String fileName = "cover_" + timeStamp + ".jpg";
+            File destFile = new File(coverDir, fileName);
+
+            // 复制图片到内部存储
+            ContentResolver resolver = getContentResolver();
+            InputStream inputStream = resolver.openInputStream(imageUri);
+
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            inputStream.close();
+
+            // 压缩并保存
+            FileOutputStream outputStream = new FileOutputStream(destFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
+            outputStream.close();
+            bitmap.recycle();
+
+            return destFile.getAbsolutePath();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "保存封面失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            return null;
+        }
     }
 }

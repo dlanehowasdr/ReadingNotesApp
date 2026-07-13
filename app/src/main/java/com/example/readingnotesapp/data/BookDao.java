@@ -18,15 +18,18 @@ public interface BookDao {
     @Delete
     void deleteBook(Book book);
 
-    @Query("SELECT * FROM books ORDER BY createTime DESC")
-    List<Book> getAllBooks();
+    @Query("SELECT * FROM books WHERE userId = :userId ORDER BY createTime DESC")
+    List<Book> getBooksByUserId(int userId);
 
-    @Query("SELECT * FROM books WHERE id = :bookId")
-    Book getBookById(int bookId);
+    @Query("SELECT * FROM books WHERE id = :bookId AND userId = :userId")
+    Book getBookById(int bookId, int userId);
 
-    @Query("SELECT COUNT(*) FROM books")
-    int getBookCount();
+    @Query("SELECT COUNT(*) FROM books WHERE userId = :userId")
+    int getBookCountByUserId(int userId);
 
-    @Query("SELECT COUNT(*) FROM books WHERE status = '已读'")
-    int getReadCount();
+    @Query("SELECT COUNT(*) FROM books WHERE userId = :userId AND status = '已读'")
+    int getReadCountByUserId(int userId);
+
+    @Query("DELETE FROM books WHERE userId = :userId")
+    void deleteBooksByUserId(int userId);
 }

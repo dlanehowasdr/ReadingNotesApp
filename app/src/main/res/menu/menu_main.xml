@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_user"
+        android:title="::"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/menu_register"
+                android:title="注册用户" />
+            <item
+                android:id="@+id/menu_switch_user"
+                android:title="切换用户" />
+            <item
+                android:id="@+id/menu_statistics"
+                android:title="数据统计" />
+            <item
+                android:id="@+id/menu_data_backup"
+                android:title="📤 数据备份" />
+            <item
+                android:id="@+id/menu_data_restore"
+                android:title="📥 数据恢复" />
+            <item
+                android:id="@+id/menu_logout"
+                android:title="注销用户" />
+            <item
+                android:id="@+id/menu_about"
+                android:title="关于" />
+        </menu>
+    </item>
+</menu>

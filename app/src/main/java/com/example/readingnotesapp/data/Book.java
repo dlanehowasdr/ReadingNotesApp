@@ -2,27 +2,33 @@ package com.example.readingnotesapp.data;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.Index;
 
-@Entity(tableName = "books")
+@Entity(tableName = "books", indices = {@Index("userId")})
 public class Book {
     @PrimaryKey(autoGenerate = true)
     private int id;
+    private int userId;           // 新增：关联用户
     private String name;
     private String publisher;
     private String coverPath;
-    private String status; // "在读" or "已读"
-    private long createTime;  // 录入时间（开始阅读时间）
-    private long readTime;    // 阅读完成时间（点击已读的时间）
+    private String status;        // "在读" or "已读"
+    private long createTime;
+    private long readTime;
 
     public Book() {
         this.createTime = System.currentTimeMillis();
         this.status = "在读";
-        this.readTime = 0;  // 0 表示未完成阅读
+        this.readTime = 0;
+        this.userId = 0;
     }
 
     // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

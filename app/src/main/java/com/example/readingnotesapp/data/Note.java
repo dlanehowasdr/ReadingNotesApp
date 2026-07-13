@@ -11,10 +11,9 @@ import androidx.room.Index;
                 entity = Book.class,
                 parentColumns = "id",
                 childColumns = "bookId",
-                onDelete = ForeignKey.CASCADE,
-                onUpdate = ForeignKey.CASCADE  // 可选：级联更新
+                onDelete = ForeignKey.CASCADE
         ),
-        indices = {@Index(value = "bookId", name = "idx_note_book_id")}  // 命名索引
+        indices = {@Index("bookId")}
 )
 public class Note {
     @PrimaryKey(autoGenerate = true)

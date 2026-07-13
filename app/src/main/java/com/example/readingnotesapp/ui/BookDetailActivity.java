@@ -19,6 +19,7 @@ import com.example.readingnotesapp.adapter.NoteAdapter;
 import com.example.readingnotesapp.data.AppDatabase;
 import com.example.readingnotesapp.data.Book;
 import com.example.readingnotesapp.data.Note;
+import com.example.readingnotesapp.utils.UserManager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -48,8 +49,10 @@ public class BookDetailActivity extends AppCompatActivity {
             return;
         }
 
-        book = db.bookDao().getBookById(bookId);
+        // ★★★ 修改这里 ★★★
+        book = db.bookDao().getBookById(bookId, UserManager.getInstance(this).getCurrentUserId());
         if (book == null) {
+            Toast.makeText(this, "书籍不存在或无权访问", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -70,17 +73,14 @@ public class BookDetailActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_notes);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // 添加间距装饰
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.note_spacing);
         recyclerView.addItemDecoration(new SpacesItemDecoration(spacingInPixels));
     }
 
     private void displayBookInfo() {
-        // 显示书籍信息
         tvBookName.setText(book.getName());
         tvPublisher.setText("出版社：" + (book.getPublisher() != null ? book.getPublisher() : "未知"));
 
-        // 显示状态
         String status = book.getStatus();
         tvBookStatus.setText("状态：" + status);
         if ("已读".equals(status)) {
@@ -89,23 +89,28 @@ public class BookDetailActivity extends AppCompatActivity {
             tvBookStatus.setTextColor(getColor(android.R.color.holo_blue_dark));
         }
 
-        // 显示封面
+        // ★★★ 显示封面 ★★★
         if (book.getCoverPath() != null && !book.getCoverPath().isEmpty()) {
-            Glide.with(this)
-                    .load(book.getCoverPath())
-                    .placeholder(R.drawable.ic_book_placeholder)
-                    .error(R.drawable.ic_book_placeholder)
-                    .into(ivBookCover);
+            File coverFile = new File(book.getCoverPath());
+            if (coverFile.exists()) {
+                Glide.with(this)
+                        .load(coverFile)
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_book_placeholder)
+                        .error(R.drawable.ic_book_placeholder)
+                        .into(ivBookCover);
+            } else {
+                ivBookCover.setImageResource(R.drawable.ic_book_placeholder);
+            }
         } else {
             ivBookCover.setImageResource(R.drawable.ic_book_placeholder);
         }
 
-        // 显示开始阅读时间（录入时间）
+        // 显示时间信息
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
         String startTime = sdf.format(book.getCreateTime());
         tvStartTime.setText("开始阅读：" + startTime);
 
-        // 显示完成阅读时间
         if (book.getReadTime() > 0) {
             String readTime = sdf.format(book.getReadTime());
             tvReadTime.setText("完成阅读：" + readTime);
@@ -139,9 +144,9 @@ public class BookDetailActivity extends AppCompatActivity {
             }
 
             book.setStatus("已读");
-            book.setReadTime(System.currentTimeMillis());  // 记录完成阅读时间
+            book.setReadTime(System.currentTimeMillis());
             db.bookDao().updateBook(book);
-            displayBookInfo();  // 刷新显示
+            displayBookInfo();
             Toast.makeText(this, "已标记为已读", Toast.LENGTH_SHORT).show();
         });
 
@@ -244,11 +249,14 @@ public class BookDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // 刷新数据
-        book = db.bookDao().getBookById(bookId);
+        // ★★★ 修改这里 ★★★
+        book = db.bookDao().getBookById(bookId, UserManager.getInstance(this).getCurrentUserId());
         if (book != null) {
             displayBookInfo();
             loadNotes();
+        } else {
+            Toast.makeText(this, "书籍不存在或已被删除", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 }

@@ -9,7 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.readingnotesapp.R;
-import com.example.readingnotesapp.data.Book;  // 修改这里
+import com.example.readingnotesapp.data.Book;
+import java.io.File;
 import java.util.List;
 
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder> {
@@ -39,11 +40,21 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         holder.bookName.setText(book.getName());
         holder.bookStatus.setText(book.getStatus());
 
+        // ★★★ 显示封面 ★★★
         if (book.getCoverPath() != null && !book.getCoverPath().isEmpty()) {
-            Glide.with(holder.itemView.getContext())
-                    .load(book.getCoverPath())
-                    .placeholder(R.drawable.ic_book_placeholder)
-                    .into(holder.bookCover);
+            File coverFile = new File(book.getCoverPath());
+            if (coverFile.exists()) {
+                Glide.with(holder.itemView.getContext())
+                        .load(coverFile)
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_book_placeholder)
+                        .error(R.drawable.ic_book_placeholder)
+                        .into(holder.bookCover);
+            } else {
+                holder.bookCover.setImageResource(R.drawable.ic_book_placeholder);
+            }
+        } else {
+            holder.bookCover.setImageResource(R.drawable.ic_book_placeholder);
         }
 
         holder.itemView.setOnClickListener(v -> {
