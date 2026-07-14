@@ -9,7 +9,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,6 +23,7 @@ import com.example.readingnotesapp.adapter.NoteAdapter;
 import com.example.readingnotesapp.data.AppDatabase;
 import com.example.readingnotesapp.data.Book;
 import com.example.readingnotesapp.data.Note;
+import com.example.readingnotesapp.utils.NoteImportUtils;
 import com.example.readingnotesapp.utils.UserManager;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +43,14 @@ public class BookDetailActivity extends AppCompatActivity {
 
     private static final int REQUEST_ADD_NOTE = 1;
     private static final int REQUEST_EDIT_NOTE = 2;
+
+    // ★★★ 文件选择器 ★★★
+    private final ActivityResultLauncher<String> filePickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    importNotesFromFile(uri);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +165,11 @@ public class BookDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "已标记为已读", Toast.LENGTH_SHORT).show();
         });
 
+        // ★★★ 导入笔记按钮 ★★★
+        findViewById(R.id.btn_import_notes).setOnClickListener(v -> {
+            showImportDialog();
+        });
+
         findViewById(R.id.btn_export_notes).setOnClickListener(v -> {
             exportAndShareNotes();
         });
@@ -162,6 +179,107 @@ public class BookDetailActivity extends AppCompatActivity {
             intent.putExtra("book_id", bookId);
             startActivity(intent);
         });
+    }
+
+    // ==================== 笔记导入功能 ====================
+
+    private void showImportDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("📥 导入笔记")
+                .setMessage("选择要导入的笔记文件\n\n支持格式：\n· 导出的笔记文件（.txt）\n· 数据备份文件（.json）")
+                .setPositiveButton("选择文件", (dialog, which) -> {
+                    filePickerLauncher.launch("*/*");
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void importNotesFromFile(Uri uri) {
+        try {
+            String fileName = getFileName(uri);
+            List<Note> newNotes = null;
+
+            // 根据文件扩展名选择解析方式
+            if (fileName != null && fileName.endsWith(".json")) {
+                // JSON格式（数据备份文件）
+                newNotes = NoteImportUtils.parseNotesFromJson(this, uri, book.getName());
+            } else {
+                // TXT格式（导出的笔记文件）
+                newNotes = NoteImportUtils.parseNotesFromFile(this, uri);
+            }
+
+            if (newNotes == null || newNotes.isEmpty()) {
+                Toast.makeText(this, "文件中没有找到笔记", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 获取已存在的笔记
+            List<Note> existingNotes = db.noteDao().getNotesByBookId(bookId);
+
+            // 过滤掉已存在的笔记
+            List<Note> notesToImport = NoteImportUtils.filterExistingNotes(newNotes, existingNotes);
+
+            if (notesToImport.isEmpty()) {
+                Toast.makeText(this, "所有笔记都已存在，无需导入", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 确认导入
+            final List<Note> finalNotesToImport = notesToImport;
+            new AlertDialog.Builder(this)
+                    .setTitle("确认导入")
+                    .setMessage("找到 " + newNotes.size() + " 条笔记\n" +
+                            "其中 " + notesToImport.size() + " 条是新笔记\n\n" +
+                            "确认导入吗？")
+                    .setPositiveButton("导入", (dialog, which) -> {
+                        performImportNotes(finalNotesToImport);
+                    })
+                    .setNegativeButton("取消", null)
+                    .show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "导入失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void performImportNotes(List<Note> notesToImport) {
+        try {
+            for (Note note : notesToImport) {
+                note.setBookId(bookId);
+                db.noteDao().insertNote(note);
+            }
+
+            Toast.makeText(this, "成功导入 " + notesToImport.size() + " 条笔记", Toast.LENGTH_SHORT).show();
+
+            // 刷新笔记列表
+            loadNotes();
+
+            // 返回结果，让首页刷新
+            setResult(RESULT_OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "导入失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private String getFileName(Uri uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                android.database.Cursor cursor = getContentResolver()
+                        .query(uri, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    String name = cursor.getString(
+                            cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME));
+                    cursor.close();
+                    return name;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return uri.getPath();
     }
 
     // ★★★ 添加 onActivityResult 处理返回结果 ★★★

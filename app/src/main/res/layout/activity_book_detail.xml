@@ -119,6 +119,16 @@
             android:backgroundTint="#2196F3" />
 
         <Button
+            android:id="@+id/btn_import_notes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📥导入"
+            android:background="@drawable/custom_button"
+            android:layout_marginEnd="4dp"
+            android:backgroundTint="#FF9800" />
+
+        <Button
             android:id="@+id/btn_export_notes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -126,7 +136,7 @@
             android:text="导 出"
             android:background="@drawable/custom_button"
             android:layout_marginEnd="4dp"
-            android:backgroundTint="#FF9800" />
+            android:backgroundTint="#CE93D8" />
 
         <Button
             android:id="@+id/btn_edit_book"
