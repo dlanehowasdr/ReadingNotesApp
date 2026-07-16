@@ -3,46 +3,130 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="#F5F5F5">
 
-    <TextView
+    <!-- 标题行 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="编辑笔记"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
 
-    <EditText
-        android:id="@+id/et_edit_note_content"
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📝 编辑笔记"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#333333" />
+
+        <!-- 编辑开关 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:drawable/dialog_holo_light_frame"
+            android:paddingStart="12dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="编辑"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_marginEnd="8dp" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_edit_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- ★★★ 用 ScrollView 包裹 EditText，支持滚动 ★★★ -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:hint="请输入笔记内容"
-        android:inputType="textMultiLine"
-        android:gravity="top|start"
-        android:minLines="8"
-        android:background="@android:drawable/editbox_background"
-        android:padding="12dp"
-        android:textSize="15sp" />
+        android:background="@drawable/bg_textured"
+        android:padding="8dp">
 
-    <Button
-        android:id="@+id/btn_save_edit_note"
+        <EditText
+            android:id="@+id/et_edit_note_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="笔记内容"
+            android:inputType="textMultiLine"
+            android:gravity="top|start"
+            android:background="@drawable/bg_textured"
+            android:padding="8dp"
+            android:textSize="18sp"
+            android:lineSpacingExtra="4dp"
+            android:enabled="false"
+            android:textColor="#666666"
+            android:scrollbars="vertical" />
+
+    </ScrollView>
+
+    <!-- 笔记信息 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="保存修改"
-        android:background="@drawable/custom_button"
-        android:layout_marginTop="12dp"
-        android:textSize="16sp" />
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
-    <Button
-        android:id="@+id/btn_delete_note"
+        <TextView
+            android:id="@+id/tv_note_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="创建时间：2024-01-01 12:00"
+            android:textSize="12sp"
+            android:textColor="#999999" />
+
+    </LinearLayout>
+
+    <!-- 操作按钮 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="删除笔记"
-        android:background="@drawable/custom_button"
-        android:textColor="@android:color/holo_red_dark"
-        android:layout_marginTop="8dp"
-        android:textSize="16sp" />
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/btn_save_edit_note"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="💾 保存"
+            android:backgroundTint="#4CAF50"
+            android:textColor="@android:color/white"
+            android:enabled="false"
+            android:alpha="0.5"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/custom_button" />
+
+        <Button
+            android:id="@+id/btn_delete_note"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🗑️ 删除"
+            android:backgroundTint="#F44336"
+            android:textColor="@android:color/white"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/custom_button" />
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -530,12 +530,12 @@ public class HomeFragment extends Fragment {
     }
 
     private void showAboutDialog() {
-        String message = "📚 读书笔记 v1.2\n\n" +
+        String message = "📚 读书笔记 v1.2.1\n\n" +
                 "功能：\n" +
                 "· 记录和管理读书笔记\n" +
                 "· 支持多用户切换\n" +
                 "· 数据备份与恢复\n" +
-                "· 数据统计\n\n" +
+                "· 数据统计\n" +
                 "· 笔记导入导出\n\n" +
                 "❤️ 感谢使用！";
 

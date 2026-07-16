@@ -16,7 +16,7 @@ import java.util.Set;
 public class NoteImportUtils {
 
     // 两个汉字的空格（全角空格）
-    private static final String INDENT = "　　";
+    private static final String INDENT = "⭐ ";
 
     /**
      * 从导出的笔记文件中解析笔记列表（支持多段落，自动添加缩进）
